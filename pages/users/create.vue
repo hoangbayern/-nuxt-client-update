@@ -30,8 +30,10 @@
   
   <script>
   import { message } from 'ant-design-vue';
+  import { API_BASE_URL } from '../../src/constants/constant';
   
   export default {
+    middleware: 'auth',
     data() {
       return {
         form: this.$form.createForm(this),
@@ -44,7 +46,7 @@
           const values = await this.form.validateFields();
           console.log(values);
   
-          const response = await this.$http.$post('https://86x07hia9j.execute-api.us-east-1.amazonaws.com/Dev/create_user', values);
+          const response = await this.$http.$post(`${API_BASE_URL}/create_user`, values);
 
         // console.log('API Response:', response.message);
         if(response.message){

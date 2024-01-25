@@ -10,6 +10,7 @@ import Header from '../components/Header.vue';
 
 export default {
     name: 'IndexPage',
-    components: { Header }
+    components: { Header },
+    middleware: 'auth',
 }
 </script>

@@ -22,6 +22,15 @@ export const state = () => ({
       commit('setLoggedIn', true);
       commit('setToken', token);
       commit('setUsername', username);
+
+      if (!process.server) {
+        try {
+          localStorage.setItem('token', token);
+          localStorage.setItem('username', username);
+        } catch (error) {
+          console.error('Error saving to localStorage:', error);
+        }
+      }
     },
     logout({ commit }) {
       console.log('Logout');

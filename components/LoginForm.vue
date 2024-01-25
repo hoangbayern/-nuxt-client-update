@@ -14,7 +14,7 @@
 
 <script>
 import { message } from 'ant-design-vue';
-
+import { mapMutations } from 'vuex';
 export default {
   data() {
     return {
@@ -22,18 +22,24 @@ export default {
     };
   },
   methods: {
+    ...mapMutations('auth', ['setLoggedIn', 'setUsername']),
     async handleSubmit(e) {
       e.preventDefault();
       try {
         const values = await this.form.validateFields();
         console.log(values);
 
-        const response = await this.$http.post('https://86x07hia9j.execute-api.us-east-1.amazonaws.com/Dev/login', values);
+        const response = await this.$http.$post('https://86x07hia9j.execute-api.us-east-1.amazonaws.com/Dev/login', values);
+
+        this.setLoggedIn(true);
+        this.$store.commit('auth/setToken', response.token);
+        this.$store.commit('auth/setUsername', response.user.username);
 
         console.log('API Response:', response);
 
         message.success("Login successfully");
         this.$router.push('/users');
+
 
       } catch (error) {
         console.error('API Error:', error);

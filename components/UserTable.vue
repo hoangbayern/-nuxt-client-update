@@ -4,6 +4,7 @@
       <a-button type="link" @click="editUser(text)">Edit</a-button>
       <a-button type="link" @click="showUser(text)">Show</a-button>
       <a-button type="link" @click="deleteUser(text)">Delete</a-button>
+      <ModalUpdateUser :user="selectedUserUpdate" v-if="selectedUserUpdate" :visible="editModalVisible" @cancel="closeEditModal" @close="closeEditModal" @update="updateUser" />
       <a-modal
         v-if="selectedUser"
         :title="`User Information - ID: ${selectedUser.user_id || ''}`"
@@ -23,6 +24,7 @@
 
 <script>
 import { Table, Button, Modal, message } from "ant-design-vue";
+import { API_BASE_URL } from "../src/constants/constant";
 
 export default {
   components: {
@@ -66,12 +68,16 @@ export default {
         },
       ],
       visible: false,
+      editModalVisible: false,
       selectedUser: null,
+      selectedUserUpdate: null,
     };
   },
   methods: {
     editUser(user) {
-      console.log("Edit user:", user);
+      this.editModalVisible = true;
+      this.selectedUserUpdate = user;
+      // console.log("Edit user:", user);
     },
     showUser(user) {
       this.visible = true;
@@ -86,15 +92,13 @@ export default {
           console.log("Delete user:", user.user_id);
           try {
             const response = await this.$http.$delete(
-              "https://86x07hia9j.execute-api.us-east-1.amazonaws.com/Dev/delete_user?user_id=" +
-                user.user_id
+              `${API_BASE_URL}/delete_user?user_id=${user.user_id}`
             );
 
             console.log(response);
             if (response.message) {
               message.success(response.message);
             }
-            location.reload();
           } catch (error) {
             console.error("Delete User Error:", error);
             message.error("Error deleting user. Please try again.");
@@ -105,6 +109,35 @@ export default {
     closeModal() {
       this.visible = false;
       this.selectedUser = null;
+    },
+    closeEditModal() {
+      this.editModalVisible = false;
+      this.selectedUserUpdate = null;
+    },
+    async updateUser(updatedUser) {
+      try {
+        const userData = {
+          name: updatedUser.name,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          address: updatedUser.address,
+        };
+
+        const response = await this.$http.$put(
+          `${API_BASE_URL}/update_user?user_id=${updatedUser.user_id}`,
+          userData
+        );
+
+        console.log("Update User Response:", response);
+        this.closeEditModal();
+        if (response.message) {
+              message.success(response.message);
+            }
+      } catch (error) {
+        console.error("Update User Error:", error);
+        message.error('Update User Error');
+      }
     },
   },
 };
